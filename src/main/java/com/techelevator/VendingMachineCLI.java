@@ -3,6 +3,8 @@ package com.techelevator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /*
@@ -30,6 +32,9 @@ public class VendingMachineCLI {
         double cashOnHand = 0;
         double totalItemCost = 0.0;
         String type = "";
+        LocalDateTime theDateTime = LocalDateTime.now();
+        DateTimeFormatter targetFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a");
+//        theDateTime.format(targetFormat);
 
         try (Scanner fileScanner = new Scanner(vendingFile)) {
             while (fileScanner.hasNextLine()) {
@@ -57,9 +62,8 @@ public class VendingMachineCLI {
         }
         File newFile = new File("Log.txt");
 
-        try (PrintWriter writer = new PrintWriter(newFile);
-            Scanner fileScan = new Scanner(newFile)){
-            while (fileScan.hasNextLine()) {
+        try (PrintWriter writer = new PrintWriter(newFile)){
+
 
                 while (toRun) {
 
@@ -75,12 +79,15 @@ public class VendingMachineCLI {
                     } else if (choice.equals("2")) {
                         boolean stay = true;
                         while (stay) {
-                            System.out.println("Current money provided: $" + cashOnHand);
+                            System.out.println("Current money provided: $" + String.format("%.2f", cashOnHand));
                             System.out.println("(1) Feed Money\n(2) Select Product\n(3) Finish Transaction");
                             String userChoice = userInput.nextLine();
                             if (userChoice.equals("1")) {
                                 System.out.println("Please enter the amount of money you have: ");
-                                cashOnHand += Double.parseDouble(userInput.nextLine());
+                                String cashAdded = userInput.nextLine();
+                                cashOnHand += Double.parseDouble(cashAdded);
+                                String feedMoneyLine = theDateTime.format(targetFormat) + " FEED MONEY: $" + cashAdded + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
+                                writer.println(feedMoneyLine);
                                 continue;
                             } else if (userChoice.equals("2")) {
                                 printVendingInventory(vendingFile, mapOfProducts);
@@ -102,6 +109,8 @@ public class VendingMachineCLI {
                                             totalItemCost += mapOfProducts.get(slotChoice).getPrice();
                                             int currentCount = mapOfProducts.get(slotChoice).getProductCount();
                                             mapOfProducts.get(slotChoice).setProductCount(currentCount - 1);
+                                            String productTransaction = theDateTime.format(targetFormat) + " " + mapOfProducts.get(slotChoice).getName() + " " + mapOfProducts.get(slotChoice).getSlotIdentifier() + " ITEM PRICE: $" + mapOfProducts.get(slotChoice).getPrice() + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
+                                            writer.println(productTransaction);
                                         }
                                     } else {
                                         System.out.println("Sorry, we're sold out of that item! Pick again?");
@@ -110,6 +119,8 @@ public class VendingMachineCLI {
 
                                 }
                             } else if (userChoice.equals("3")) {
+                                String changeAmount = theDateTime.format(targetFormat) + " GIVE CHANGE: $" + String.format("%.2f", cashOnHand) + " CUSTOMER MONEY TOTAL: $0.00";
+                                writer.println(changeAmount);
                                 if (cashOnHand != 0) {
                                     int quarters = 0;
                                     int dimes = 0;
@@ -137,6 +148,7 @@ public class VendingMachineCLI {
                                     }
                                     System.out.println("Your change is: " + quarters + " quarters, " + dimes + " dimes, " + nickels + " nickles, and " + pennies + " pennies!");
                                 }
+
                                 break;
                             }
                         }
@@ -150,7 +162,7 @@ public class VendingMachineCLI {
                     }
 
                 }
-            }
+
         } catch (FileNotFoundException e) {
             System.out.println("An error has occurred.");
         }
@@ -162,7 +174,7 @@ public class VendingMachineCLI {
             while (fileScanner.hasNextLine()) {
                 String[] productInfo = fileScanner.nextLine().split("\\,");
 
-                System.out.println(productInfo[0] + " is: " + productInfo[1] + ", Costs: " + productInfo[2] + " and is a " + productInfo[3] + "!");
+                System.out.println(productInfo[0] + " is: " + productInfo[1] + ", Costs: $" + productInfo[2] + " and is a " + productInfo[3] + "!");
                 System.out.println("There are " + map.get(productInfo[0]).getProductCount() + " " + productInfo[1] + " left!");
                 if (map.get(productInfo[0]).getProductCount() == 0) {
                     System.out.println("!SOLD OUT!\n");
