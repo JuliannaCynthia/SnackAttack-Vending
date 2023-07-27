@@ -1,6 +1,6 @@
 package com.techelevator;
 
-public abstract class Product {
+public class Product {
 
     private String name;
     private int productCount;
@@ -13,6 +13,10 @@ public abstract class Product {
         this.name = name;
         this.price = price;
         productCount = 5;
+
+    }
+
+    public Product(){
 
     }
 
