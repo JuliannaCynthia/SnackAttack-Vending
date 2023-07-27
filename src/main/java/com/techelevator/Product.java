@@ -8,11 +8,11 @@ public class Product {
     private String message;
     private String slotIdentifier;
 
-    public Product(String slotIdentifier,String name,double price){
+    public Product(String slotIdentifier,String name,double price,int productCount){
         this.slotIdentifier = slotIdentifier;
         this.name = name;
         this.price = price;
-        productCount = 5;
+        this.productCount = productCount; ;
 
     }
 
