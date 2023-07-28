@@ -21,7 +21,6 @@ public class VendingMachineCLI {
         cli.run();
 
     }
-
     public void run() {
         Scanner userInput = new Scanner(System.in);
 //		PrintWriter writer = new PrintWriter("Log.txt");
@@ -61,21 +60,13 @@ public class VendingMachineCLI {
             System.out.println("Oops, something has gone wrong!");
         }
         File newFile = new File("Log.txt");
-
         try (PrintWriter writer = new PrintWriter(newFile)){
-
-
                 while (toRun) {
-
                     System.out.println("(1) " + MAIN_MENU_OPTION_DISPLAY_ITEMS + "\n(2) " + MAIN_MENU_OPTION_PURCHASE + "\n(3) Exit");
                     String choice = userInput.nextLine();
-
-
                     if (choice.equals("1")) {
                         ///Prints the inventory from the file, through a map.
                         printVendingInventory(vendingFile, mapOfProducts);
-
-
                     } else if (choice.equals("2")) {
                         boolean stay = true;
                         while (stay) {
@@ -116,7 +107,6 @@ public class VendingMachineCLI {
                                         System.out.println("Sorry, we're sold out of that item! Pick again?");
                                     }
                                     continue;
-
                                 }
                             } else if (userChoice.equals("3")) {
                                 String changeAmount = theDateTime.format(targetFormat) + " GIVE CHANGE: $" + String.format("%.2f", cashOnHand) + " CUSTOMER MONEY TOTAL: $0.00";
@@ -148,11 +138,9 @@ public class VendingMachineCLI {
                                     }
                                     System.out.println("Your change is: " + quarters + " quarters, " + dimes + " dimes, " + nickels + " nickles, and " + pennies + " pennies!");
                                 }
-
                                 break;
                             }
                         }
-
                     } else if (choice.equals("3")) {
                         System.out.println("You have chosen to exit the Vending Machine. Have a nice day!");
                         toRun = false;
@@ -160,15 +148,11 @@ public class VendingMachineCLI {
                     } else if (choice.equals("4")) {
                         ///Hidden menu optional
                     }
-
                 }
-
         } catch (FileNotFoundException e) {
             System.out.println("An error has occurred.");
         }
     }
-
-
     public void printVendingInventory(File file, Map<String, Product> map) {
         try (Scanner fileScanner = new Scanner(file)) {
             while (fileScanner.hasNextLine()) {
@@ -182,14 +166,8 @@ public class VendingMachineCLI {
                     System.out.println();
                 }
             }
-
         } catch (FileNotFoundException e) {
             System.out.println("Oops, something has gone wrong!");
         }
-
-
     }
 }
-
-
-
