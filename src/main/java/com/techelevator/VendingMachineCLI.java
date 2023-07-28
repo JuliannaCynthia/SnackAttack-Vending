@@ -3,7 +3,9 @@ package com.techelevator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -17,7 +19,10 @@ public class VendingMachineCLI {
     private static final String MAIN_MENU_OPTION_PURCHASE = "Purchase";
     File vendingFile = new File("main.csv");
     File file = new File("log.txt");
+
     Logger logger = new Logger(file);
+    VendingGraphics vendingGraphics = new VendingGraphics();
+    String dateAndTime = logger.dateAndTime();
 
     public static void main(String[] args) {
         VendingMachineCLI cli = new VendingMachineCLI();
@@ -25,19 +30,30 @@ public class VendingMachineCLI {
 
     }
     public void run() {
+
         Scanner userInput = new Scanner(System.in);
 //		PrintWriter writer = new PrintWriter("Log.txt");
         boolean toRun = true;
+
         int vendCount = 1;
+
         Map<String, Product> mapOfProducts = new HashMap<>();
+
+        Map<String, int[]> salesReport= new HashMap<>();
+        Set<String> saleKeys = salesReport.keySet();
+
         double cashOnHand = 0;
+
         double totalItemCost = 0.0;
+
         String type = "";
+        vendingGraphics.platformBanner();
 
         mapCreator(vendingFile, mapOfProducts, type);
+        salesReportMapCreator(vendingFile,salesReport);
 
                 while (toRun) {
-                    System.out.println("(1) " + MAIN_MENU_OPTION_DISPLAY_ITEMS + "\n(2) " + MAIN_MENU_OPTION_PURCHASE + "\n(3) Exit");
+                    vendingGraphics.mainMenu();
                     String choice = userInput.nextLine();
                     if (choice.equals("1")) {
                         ///Prints the inventory from the file, through a map.
@@ -46,9 +62,10 @@ public class VendingMachineCLI {
                         boolean stay = true;
                         while (stay) {
                             System.out.println("Current money provided: $" + String.format("%.2f", cashOnHand));
-                            System.out.println("(1) Feed Money\n(2) Select Product\n(3) Finish Transaction");
+                            vendingGraphics.purchaseMenu();
                             String userChoice = userInput.nextLine();
                             if (userChoice.equals("1")) {
+                                vendingGraphics.moneyBanner();
                                 System.out.println("Please enter the amount of money in whole dollars (any amount in change will not be accepted): ");
                                 String cashAdded = userInput.nextLine();
                                 double preRoundedAmount = Double.parseDouble(cashAdded);
@@ -70,20 +87,28 @@ public class VendingMachineCLI {
                                         vendCount++;
                                         if (cashOnHand < mapOfProducts.get(slotChoice).getPrice()) {
                                             System.out.println("Uh Oh! You cant afford that!");
+                                            vendingGraphics.angryNoAfford();
                                         } else {
                                             if (vendCount % 2 == 0) {
                                                 cashOnHand += 1;
+                                               (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] +1;
+
                                                 System.out.println("Woo! It's August! BOGODO for you! Enjoy one dollar off your choice!");
+                                                vendingGraphics.bogodo();
                                             }
                                             cashOnHand -= mapOfProducts.get(slotChoice).getPrice();
                                             totalItemCost += mapOfProducts.get(slotChoice).getPrice();
                                             int currentCount = mapOfProducts.get(slotChoice).getProductCount();
                                             mapOfProducts.get(slotChoice).setProductCount(currentCount - 1);
+
+                                            (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] +1;
+
                                             String productTransaction =  mapOfProducts.get(slotChoice).getName() + " " + mapOfProducts.get(slotChoice).getSlotIdentifier() + " ITEM PRICE: $" + mapOfProducts.get(slotChoice).getPrice() + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
                                             logger.write(productTransaction);
                                         }
                                     } else {
                                         System.out.println("Sorry, we're sold out of that item! Pick again?");
+                                        vendingGraphics.soldOut();
                                     }
                                     continue;
                                 }
@@ -98,11 +123,32 @@ public class VendingMachineCLI {
                     } else if (choice.equals("3")) {
                         System.out.println("You have chosen to exit the Vending Machine. Have a nice day!");
                         toRun = false;
+
+                        vendingGraphics.platformBanner();
                     } else if (choice.equals("4")) {
-                        ///Hidden menu optional
+
+
+                        File saleFile = new File(dateAndTime + "SalesReport.txt");
+
+                        Logger saleLogger = new Logger(saleFile);
+                        for(String key: saleKeys){
+                            String message = salesReport.get(key)[0]+ "|" + salesReport.get(key)[1];
+                            saleLogger.addCreateSalesReport(key, message);
+                        }
+                        saleLogger.addCreateSalesReport("End Of Current Session Sales ", " $" + totalItemCost + "\n");
+
                     }
                 }
     }
+
+//    public void printSaleReport(File file, Map<String, int[]> map){
+//        try(Scanner fileScanner = new Scanner(file)){
+//
+//        }catch(FileNotFoundException e){
+//            System.out.println("File is not available.");
+//        }
+//    }
+
     public void printVendingInventory(File file, Map<String, Product> map) {
         try (Scanner fileScanner = new Scanner(file)) {
             while (fileScanner.hasNextLine()) {
@@ -112,6 +158,7 @@ public class VendingMachineCLI {
                 System.out.println("There are " + map.get(productInfo[0]).getProductCount() + " " + productInfo[1] + " left!");
                 if (map.get(productInfo[0]).getProductCount() == 0) {
                     System.out.println("!SOLD OUT!\n");
+                    vendingGraphics.soldOut();
                 } else {
                     System.out.println();
                 }
@@ -120,6 +167,7 @@ public class VendingMachineCLI {
             System.out.println("Oops, something has gone wrong!");
         }
     }
+
 
     public void mapCreator (File file, Map <String,Product> mapOfProducts, String type){
 
@@ -149,6 +197,20 @@ public class VendingMachineCLI {
         }
     }
 
+    public void salesReportMapCreator(File file, Map<String, int[]> map){
+        try(Scanner fileScanner = new Scanner(vendingFile)){
+            while(fileScanner.hasNextLine()){
+                String[] productInfo = fileScanner.nextLine().split("\\,");
+                String name = productInfo[1];
+                int[] salesReport = {0,0};
+                map.put(name, salesReport);
+            }
+
+        }catch(FileNotFoundException e){
+            System.out.println("Error. File not usable.");
+        }
+    }
+
     public String changeCounter (double cashOnHand){
         String message = "";
         if (cashOnHand != 0) {
@@ -175,7 +237,7 @@ public class VendingMachineCLI {
                     pennies++;
                 }
                 cashOnHand = 0.0;
-            } message = "Your change is: " + quarters + " quarters, " + dimes + " dimes, " + nickels + " nickles, and " + pennies + " pennies!";
+            } message = "Your change is: " + quarters + " quarters, " + dimes + " dimes, " + nickels + " nickels, and " + pennies + " pennies!";
         } return message;
     }
 }

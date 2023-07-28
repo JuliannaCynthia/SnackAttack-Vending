@@ -6,18 +6,22 @@ import java.time.format.DateTimeFormatter;
 
 public class Logger {
 
-    File file = new File("log.txt");
+    File file;
 
     public Logger(File file){
         this.file = file;
     }
 
-    public void write(String message){
-
+    public String dateAndTime(){
         LocalDateTime timestamp = LocalDateTime.now();
 
         DateTimeFormatter targetFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a");
-//        timestamp.format(targetFormat);
+        return timestamp.format(targetFormat);
+    }
+
+    public void write(String message){
+
+        String dateAndTime = dateAndTime();
 
         try{
             PrintWriter writer = null;
@@ -29,12 +33,32 @@ public class Logger {
                 writer = new PrintWriter(file);
             }
 
-            writer.append(timestamp.format(targetFormat) + " " + message + "\n");
+            writer.append(dateAndTime + " " + message + "\n");
             writer.flush();
             writer.close();
 
         }catch (FileNotFoundException e){
             System.out.println("File can't be accessed");
         }
+    }
+
+    public void addCreateSalesReport(String name,String message){
+        String dateAndTime = dateAndTime();
+
+        try{
+            PrintWriter saleWriter;
+            if(file.exists()){
+                saleWriter = new PrintWriter(new FileOutputStream(file, true));
+            }else{
+                saleWriter = new PrintWriter(file);
+            }
+            String newLine = name + "|" + message + "\n";
+            saleWriter.append(newLine);
+            saleWriter.flush();
+            saleWriter.close();
+        }catch(FileNotFoundException e){
+            System.out.println("File can't be accessed");
+        }
+
     }
 }
