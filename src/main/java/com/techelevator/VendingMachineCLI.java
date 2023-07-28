@@ -2,7 +2,9 @@ package com.techelevator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,7 +24,8 @@ public class VendingMachineCLI {
 
     Logger logger = new Logger(file);
     VendingGraphics vendingGraphics = new VendingGraphics();
-    String dateAndTime = logger.dateAndTime();
+    String dateAndTime = "" + logger.dateAndTime();
+
 
     public static void main(String[] args) {
         VendingMachineCLI cli = new VendingMachineCLI();
@@ -85,17 +88,17 @@ public class VendingMachineCLI {
                                     System.out.println("You chose the " + mapOfProducts.get(slotChoice).getName() + "! It costs: " + mapOfProducts.get(slotChoice).getPrice() + "\n" + mapOfProducts.get(slotChoice).getMessage());
                                     if (mapOfProducts.get(slotChoice).getProductCount() > 0) {
                                         vendCount++;
+                                        if (vendCount % 2 == 1) {
+                                            cashOnHand += 1;
+                                            (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] +1;
+
+                                            System.out.println("Woo! It's August! BOGODO for you! Enjoy one dollar off your choice!");
+                                            vendingGraphics.bogodo();
+                                        }
                                         if (cashOnHand < mapOfProducts.get(slotChoice).getPrice()) {
                                             System.out.println("Uh Oh! You cant afford that!");
                                             vendingGraphics.angryNoAfford();
                                         } else {
-                                            if (vendCount % 2 == 0) {
-                                                cashOnHand += 1;
-                                               (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] +1;
-
-                                                System.out.println("Woo! It's August! BOGODO for you! Enjoy one dollar off your choice!");
-                                                vendingGraphics.bogodo();
-                                            }
                                             cashOnHand -= mapOfProducts.get(slotChoice).getPrice();
                                             totalItemCost += mapOfProducts.get(slotChoice).getPrice();
                                             int currentCount = mapOfProducts.get(slotChoice).getProductCount();
@@ -127,8 +130,14 @@ public class VendingMachineCLI {
                         vendingGraphics.platformBanner();
                     } else if (choice.equals("4")) {
 
+                        String fileSuffix = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+                        File saleFile = new File(fileSuffix + "salesreport.txt");
 
-                        File saleFile = new File(dateAndTime + "SalesReport.txt");
+                        try {
+                            saleFile.createNewFile();
+                        } catch (IOException e) {
+                            System.out.println("Problem creating new file");;
+                        }
 
                         Logger saleLogger = new Logger(saleFile);
                         for(String key: saleKeys){
