@@ -5,14 +5,15 @@ import org.w3c.dom.ls.LSOutput;
 
 public class VendingGraphics {
 
-    public void candyTime(){
-        System.out.println("┈┊┈┊┈┊┈┊┈┊┈┊┈┊┈┊┈┊");
-        System.out.println("▕▔╲┈╱▔▔▔▔▔▔▔▔╲┈╱▔▏");
-        System.out.println("▕╭▕▔▏┏╮ ╭┓ ┏╮▕▔▏╭▏");
-        System.out.println("▕╯▕▂▏╰┛ ┗╯ ╰┛▕▂▏╯▏");
-        System.out.println("▕▂╱┈╲▂▂▂▂▂▂▂▂╱┈╲▂▏");
-        System.out.println("┈┊┈┊┈┊┈┊┈┊┈┊┈┊┈┊┈┊");
-     //https://textart4u.blogspot.com/2012/12/candy-ascii-text-art.html
+    public void fileMenu(){
+        System.out.println("%%%&&&###***+++--~~~~~~~~~~~~~~~~~~~~~--+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++-------------------------+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++-(1) Default Vendor Menu-+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++-(2) Dessert-Only Menu --+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++-(3) Drink-Only Menu ----+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++-------------------------+++***###&&&%%%");
+        System.out.println("%%%&&&###***+++--~~~~~~~~~~~~~~~~~~~~~--+++***###&&&%%%");
+        System.out.println("\n~~~~~----- Please Enter A Selection Below ----~~~~~\n\n");
     }
     public void candyBorder(){
         System.out.println("~~~< ><&$&>< ||| ><&$&>< ||| ><&$&>< ||| ><&$&>< ||| ><&$&>< >~~~");
@@ -38,22 +39,26 @@ public class VendingGraphics {
 
     public void mainMenu(){
         System.out.println(">^<^>^<^>^<@>^<^>^<^>@<^>^<^>^<@>^<^>^<^>@<^>^<^>^<^>^<^>^<");
+        System.out.println(">^<~                                                   ~>^<");
         System.out.println(">^<~~ *     { 1 } Display SnackAttack Inventory     * ~~>^<");
         System.out.println(">*<~~~- *   { 2 } Make A Selection                * -~~~>*<");
         System.out.println(">^<~~ *     { 3 } All Done!                         * ~~>^<");
+        System.out.println(">^<~                                                   ~>^<");
         System.out.println(">^<^>^<^>^<@>^<^>^<^>@<^>^<^>^<@>^<^>^<^>@<^>^<^>^<^>^<^>^<");
-        System.out.println("\n~~~~~~~~~----- Please Enter A Selection Below ----~~~~~~~");
+        System.out.println("\n~~~~~~~~~----- Please Enter A Selection Below ----~~~~~~~\n\n");
         //mine
     }
 
 
     public void purchaseMenu(){
-        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅10)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅5̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
-        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅|~~~~~~~ { 1 } Deposit Money ~~~~~~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
-        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅|~~~~~~~ { 2 } Make A Selection ~~~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
-        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅|~~~~~~~ { 3 } Finish Transaction ~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
-        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅10)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅5̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
-        System.out.println("\n~~~~~~~~~~~~~~--- Please Enter A Selection Below ---~~~~~~~~~~~~~");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~ ************* ~~ |̲̅$̲̅(̲̅5̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~                                ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~~~~~ { 1 } Deposit Money ~~~~~~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~~~~~ { 2 } Make A Selection ~~~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~~~~~ { 3 } Finish Transaction ~~~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~                                ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("|̲̅$̲̅(̲̅20̲̅)̲̅$̲̅| ~~ |̲̅$̲̅(̲̅10)̲̅$̲̅| ~~ ************* ~~ |̲̅$̲̅(̲̅1̲̅)̲̅$̲̅|");
+        System.out.println("\n~~~~~~~~~~~~~~--- Please Enter A Selection Below ---~~~~~~~~~~~~~\n\n");
         //kinda mine, not the dollars
     }
 
