@@ -3,28 +3,32 @@ package com.techelevator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /*
  * This class is provided to you as a *suggested* class to start
  * your project. Feel free to refactor this code as you see fit.
  */
-public class VendingMachineCLI {
+public class VendingMachineCLI{
 
     private static final String MAIN_MENU_OPTION_DISPLAY_ITEMS = "Display Vending Machine Items";
     private static final String MAIN_MENU_OPTION_PURCHASE = "Purchase";
-    File vendingFile = new File("main.csv");
-    File file = new File("log.txt");
-
-    Logger logger = new Logger(file);
-    VendingGraphics vendingGraphics = new VendingGraphics();
-    String dateAndTime = "" + logger.dateAndTime();
+    private File vendingFile = new File("main.csv");
+    private File justDesserts = new File("dessert.csv");
+    private File justDrinks  = new File("drinks.csv");
+    private File file = new File("log.txt");
+    private Logger logger = new Logger(file);
+    private VendingGraphics vendingGraphics = new VendingGraphics();
+    private Scanner userInput = new Scanner(System.in);
+    private boolean toRun = true;
+    private int vendCount = 1;
+    private Map<String, Product> mapOfProducts = new HashMap<>();
+    private Map<String, int[]> salesReport= new HashMap<>();
+    private Set<String> saleKeys = salesReport.keySet();
+    private double cashOnHand = 0;
+    private double totalItemCost = 0.0;
+    private String type = "";
 
 
     public static void main(String[] args) {
@@ -33,130 +37,190 @@ public class VendingMachineCLI {
 
     }
     public void run() {
-
-        Scanner userInput = new Scanner(System.in);
-//		PrintWriter writer = new PrintWriter("Log.txt");
-        boolean toRun = true;
-
-        int vendCount = 1;
-
-        Map<String, Product> mapOfProducts = new HashMap<>();
-
-        Map<String, int[]> salesReport= new HashMap<>();
-        Set<String> saleKeys = salesReport.keySet();
-
-        double cashOnHand = 0;
-
-        double totalItemCost = 0.0;
-
-        String type = "";
         vendingGraphics.platformBanner();
 
-        mapCreator(vendingFile, mapOfProducts, type);
-        salesReportMapCreator(vendingFile,salesReport);
+        System.out.println("Choose a Snack Menu: \n(1) Standard Vending Menu\n(2) Dessert-Only Menu\n(3) Drinks-Only Menu");
+        String fileChoice = userInput.nextLine();
 
-                while (toRun) {
-                    vendingGraphics.mainMenu();
-                    String choice = userInput.nextLine();
-                    if (choice.equals("1")) {
-                        ///Prints the inventory from the file, through a map.
-                        printVendingInventory(vendingFile, mapOfProducts);
-                    } else if (choice.equals("2")) {
-                        boolean stay = true;
-                        while (stay) {
-                            System.out.println("Current money provided: $" + String.format("%.2f", cashOnHand));
-                            vendingGraphics.purchaseMenu();
-                            String userChoice = userInput.nextLine();
-                            if (userChoice.equals("1")) {
-                                vendingGraphics.moneyBanner();
-                                System.out.println("Please enter the amount of money in whole dollars (any amount in change will not be accepted): ");
-                                String cashAdded = userInput.nextLine();
-                                double preRoundedAmount = Double.parseDouble(cashAdded);
-                                double roundedAmount = Math.round(preRoundedAmount);
-                                if(roundedAmount > preRoundedAmount){
-                                    roundedAmount--;
-                                }
-                                cashOnHand += roundedAmount;
-                                String message = "FEED MONEY: $" + cashAdded + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
-                                logger.write(message);
-                                continue;
-                            } else if (userChoice.equals("2")) {
-                                printVendingInventory(vendingFile, mapOfProducts);
-                                System.out.println("Please enter a slot choice: ");
-                                String slotChoice = userInput.nextLine().toUpperCase();
-                                if (mapOfProducts.containsKey(slotChoice)) {
-                                    System.out.println("You chose the " + mapOfProducts.get(slotChoice).getName() + "! It costs: " + mapOfProducts.get(slotChoice).getPrice() + "\n" + mapOfProducts.get(slotChoice).getMessage());
-                                    if (mapOfProducts.get(slotChoice).getProductCount() > 0) {
-                                        vendCount++;
-                                        if (vendCount % 2 == 1) {
-                                            cashOnHand += 1;
-                                            (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] +1;
+        File usedFile= productMenuChoice(fileChoice);
 
-                                            System.out.println("Woo! It's August! BOGODO for you! Enjoy one dollar off your choice!");
-                                            vendingGraphics.bogodo();
-                                        }
-                                        if (cashOnHand < mapOfProducts.get(slotChoice).getPrice()) {
-                                            System.out.println("Uh Oh! You cant afford that!");
-                                            vendingGraphics.angryNoAfford();
-                                        } else {
-                                            cashOnHand -= mapOfProducts.get(slotChoice).getPrice();
-                                            totalItemCost += mapOfProducts.get(slotChoice).getPrice();
-                                            int currentCount = mapOfProducts.get(slotChoice).getProductCount();
-                                            mapOfProducts.get(slotChoice).setProductCount(currentCount - 1);
-
-                                            (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] +1;
-
-                                            String productTransaction =  mapOfProducts.get(slotChoice).getName() + " " + mapOfProducts.get(slotChoice).getSlotIdentifier() + " ITEM PRICE: $" + mapOfProducts.get(slotChoice).getPrice() + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
-                                            logger.write(productTransaction);
-                                        }
-                                    } else {
-                                        System.out.println("Sorry, we're sold out of that item! Pick again?");
-                                        vendingGraphics.soldOut();
-                                    }
-                                    continue;
-                                }
-                            } else if (userChoice.equals("3")) {
-                                String changeAmount = "GIVE CHANGE: $" + String.format("%.2f", cashOnHand) + " CUSTOMER MONEY TOTAL: $0.00";
-                                logger.write(changeAmount);
-                                String message = changeCounter(cashOnHand);
-                                System.out.println(message);
-                                break;
-                            }
-                        }
-                    } else if (choice.equals("3")) {
-                        System.out.println("You have chosen to exit the Vending Machine. Have a nice day!");
-                        toRun = false;
-
-                        vendingGraphics.platformBanner();
-                    } else if (choice.equals("4")) {
-
-                        String fileSuffix = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-                        File saleFile = new File(fileSuffix + "salesreport.txt");
-
-                        try {
-                            saleFile.createNewFile();
-                        } catch (IOException e) {
-                            System.out.println("Problem creating new file");;
-                        }
-
-                        Logger saleLogger = new Logger(saleFile);
-                        for(String key: saleKeys){
-                            String message = salesReport.get(key)[0]+ "|" + salesReport.get(key)[1];
-                            saleLogger.addCreateSalesReport(key, message);
-                        }
-                        saleLogger.addCreateSalesReport("End Of Current Session Sales ", " $" + totalItemCost + "\n");
-
-                    }
-                }
+        runSnackAttackVending(usedFile);
     }
 
-//    public void printSaleReport(File file, Map<String, int[]> map){
-//        try(Scanner fileScanner = new Scanner(file)){
-//
-//        }catch(FileNotFoundException e){
-//            System.out.println("File is not available.");
-//        }
-//    }
+
+
+
+
+
+
+
+
+
+
+    public void runSnackAttackVending(File usedFile){
+        while (toRun) {
+            vendingGraphics.mainMenu();
+            String choice = userInput.nextLine();
+            if (choice.equals("1")) {
+                ///Prints the inventory from the file, through a map.
+                printVendingInventory(usedFile, mapOfProducts);
+            } else if (choice.equals("2")) {
+
+                purchaseMenu(usedFile);
+
+            } else if (choice.equals("3")) {
+                System.out.println("You have chosen to exit the Vending Machine. Have a nice day!");
+                toRun = false;
+
+                vendingGraphics.platformBanner();
+            } else if (choice.equals("4")) {
+
+                secretSalesReportCreated();
+
+            }
+        }
+    }
+    public File productMenuChoice(String fileChoice){
+
+        if(fileChoice.equals("1")){
+
+            mapCreator(vendingFile, mapOfProducts);
+            salesReportMapCreator(vendingFile,salesReport);
+            return vendingFile;
+
+        }else if(fileChoice.equals("2")){
+
+            mapCreator(justDesserts, mapOfProducts);
+            salesReportMapCreator(justDesserts,salesReport);
+            return justDesserts;
+
+        }else if(fileChoice.equals("3")){
+
+            mapCreator(justDrinks, mapOfProducts);
+            salesReportMapCreator(justDrinks,salesReport);
+            return justDrinks;
+
+        }else{
+            System.out.println("Not a valid choice. Proceeding with default menu.");
+            mapCreator(vendingFile, mapOfProducts);
+            salesReportMapCreator(vendingFile,salesReport);
+            return vendingFile;
+
+        }
+    }
+
+    public void secretSalesReportCreated(){
+        String fileSuffix = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+        File saleFile = new File(fileSuffix + "salesreport.txt");
+
+        try {
+            saleFile.createNewFile();
+        } catch (IOException e) {
+            System.out.println("Problem creating new file");;
+        }
+
+        Logger saleLogger = new Logger(saleFile);
+        for(String key: saleKeys){
+            String message = salesReport.get(key)[0]+ "|" + salesReport.get(key)[1];
+            saleLogger.addCreateSalesReport(key, message);
+        }
+        saleLogger.addCreateSalesReport("End Of Current Session Sales ", " $" + totalItemCost + "\n");
+    }
+
+    public void purchaseMenu(File usedFile){
+
+
+
+
+        boolean stay = true;
+        while (stay) {
+            System.out.println("Current money provided: $" + String.format("%.2f", cashOnHand));
+            vendingGraphics.purchaseMenu();
+            String userChoice = userInput.nextLine();
+            if (userChoice.equals("1")) {
+                vendingGraphics.moneyBanner();
+                recieveMoney();
+            } else if (userChoice.equals("2")) {
+
+                printVendingInventory(usedFile, mapOfProducts);
+                itemSelection();
+
+            } else if (userChoice.equals("3")) {
+                endTransaction();
+                break;
+            }
+        }
+    }
+
+    public void endTransaction(){
+        String changeAmount = "GIVE CHANGE: $" + String.format("%.2f", cashOnHand) + " CUSTOMER MONEY TOTAL: $0.00";
+        logger.write(changeAmount);
+        String message = changeCounter(cashOnHand);
+        System.out.println(message);
+    }
+
+    public void itemSelection(){
+        System.out.println("Please enter a slot choice: ");
+        String slotChoice = userInput.nextLine().toUpperCase();
+        if (mapOfProducts.containsKey(slotChoice)) {
+
+            if (mapOfProducts.get(slotChoice).getProductCount() > 0) {
+                vendCount++;
+                itemPurchased(slotChoice);
+            } else {
+                System.out.println("Sorry, we're sold out of that item! Pick again?");
+                vendingGraphics.soldOut();
+            }
+        }
+    }
+    public void itemPurchased(String slotChoice){
+        if (vendCount % 2 == 1) {
+            boGoDoSettings(slotChoice);
+        }
+        if (cashOnHand < mapOfProducts.get(slotChoice).getPrice()) {
+            System.out.println("Uh Oh! You cant afford that!");
+            vendingGraphics.angryNoAfford();
+        } else {
+            System.out.println("You chose the " + mapOfProducts.get(slotChoice).getName() + "! It costs: " + mapOfProducts.get(slotChoice).getPrice() + "\n" + mapOfProducts.get(slotChoice).getMessage());
+            itemProcessed(slotChoice);
+
+            appendItemLog(slotChoice);
+        }
+    }
+    public void itemProcessed(String slotChoice){
+        cashOnHand -= mapOfProducts.get(slotChoice).getPrice();
+        totalItemCost += mapOfProducts.get(slotChoice).getPrice();
+        int currentCount = mapOfProducts.get(slotChoice).getProductCount();
+        mapOfProducts.get(slotChoice).setProductCount(currentCount - 1);
+    }
+    public void appendItemLog(String slotChoice){
+        (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[0] +1;
+
+        String productTransaction =  mapOfProducts.get(slotChoice).getName() + " " + mapOfProducts.get(slotChoice).getSlotIdentifier() + " ITEM PRICE: $" + mapOfProducts.get(slotChoice).getPrice() + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
+        logger.write(productTransaction);
+    }
+
+
+    public void recieveMoney(){
+        System.out.println("Please enter the amount of money in whole dollars (any amount in change will not be accepted): ");
+        String cashAdded = userInput.nextLine();
+        double preRoundedAmount = Double.parseDouble(cashAdded);
+        double roundedAmount = Math.round(preRoundedAmount);
+        if(roundedAmount > preRoundedAmount){
+            roundedAmount--;
+        }
+        cashOnHand += roundedAmount;
+        String message = "FEED MONEY: $" + cashAdded + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
+        logger.write(message);
+    }
+    public void boGoDoSettings(String slotChoice){
+        cashOnHand += 1;
+        (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] = (salesReport.get(mapOfProducts.get(slotChoice).getName()))[1] +1;
+
+        System.out.println("Woo! It's August! BOGODO for you! Enjoy one dollar off your choice!");
+        vendingGraphics.bogodo();
+    }
+
 
     public void printVendingInventory(File file, Map<String, Product> map) {
         try (Scanner fileScanner = new Scanner(file)) {
@@ -178,9 +242,9 @@ public class VendingMachineCLI {
     }
 
 
-    public void mapCreator (File file, Map <String,Product> mapOfProducts, String type){
+    public void mapCreator (File file, Map <String,Product> mapOfProducts){
 
-        try (Scanner fileScanner = new Scanner(vendingFile)) {
+        try (Scanner fileScanner = new Scanner(file)) {
             while (fileScanner.hasNextLine()) {
                 String[] productInfo = fileScanner.nextLine().split("\\,");
                 String productID = String.valueOf(productInfo[0]);
@@ -207,7 +271,7 @@ public class VendingMachineCLI {
     }
 
     public void salesReportMapCreator(File file, Map<String, int[]> map){
-        try(Scanner fileScanner = new Scanner(vendingFile)){
+        try(Scanner fileScanner = new Scanner(file)){
             while(fileScanner.hasNextLine()){
                 String[] productInfo = fileScanner.nextLine().split("\\,");
                 String name = productInfo[1];
@@ -245,7 +309,6 @@ public class VendingMachineCLI {
                 if (cashOnHand % 0.01 > 0) {
                     pennies++;
                 }
-                cashOnHand = 0.0;
             } message = "Your change is: " + quarters + " quarters, " + dimes + " dimes, " + nickels + " nickels, and " + pennies + " pennies!";
         } return message;
     }

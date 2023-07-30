@@ -17,8 +17,7 @@ public class VendingMachineCLIDATATest {
     public void build(){
         vendingMachineCLI= new VendingMachineCLI();
         File file = new File("main.csv");
-        String type = "";
-        vendingMachineCLI.mapCreator(file,mapOfProducts,type);
+        vendingMachineCLI.mapCreator(file,mapOfProducts);
     }
 
     @Test
