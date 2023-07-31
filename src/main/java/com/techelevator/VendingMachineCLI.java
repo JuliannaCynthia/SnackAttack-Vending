@@ -161,7 +161,7 @@ public class VendingMachineCLI{
         if (mapOfProducts.containsKey(slotChoice)) {
 
             if (mapOfProducts.get(slotChoice).getProductCount() > 0) {
-               
+
                 itemPurchased(slotChoice);
             } else {
                 System.out.println("Sorry, we're sold out of that item! Pick again?");
