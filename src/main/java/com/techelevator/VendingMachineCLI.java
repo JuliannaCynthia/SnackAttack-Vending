@@ -152,6 +152,7 @@ public class VendingMachineCLI{
         logger.write(changeAmount);
         String message = changeCounter(cashOnHand);
         System.out.println(message);
+        cashOnHand=0;
     }
 //One of the most important methods in the program. Creates the slotChoice variable,
 // and proceeds based on product availability.
@@ -209,15 +210,19 @@ public class VendingMachineCLI{
     public void recieveMoney(){
         System.out.println("Please enter the amount of money in whole dollars. All given change will be eaten by the machine as a donation. ");
         String cashAdded = userInput.nextLine();
-        double preRoundedAmount = Double.parseDouble(cashAdded);
-        double roundedAmount = Math.round(preRoundedAmount);
-        if(roundedAmount > preRoundedAmount){
-            roundedAmount--;
+        try {
+            double preRoundedAmount = Double.parseDouble(cashAdded);
+            double roundedAmount = Math.round(preRoundedAmount);
+            if (roundedAmount > preRoundedAmount) {
+                roundedAmount--;
+            }
+            cashOnHand += roundedAmount;
+            totalItemCost += preRoundedAmount - roundedAmount;
+            String message = "FEED MONEY: $" + cashAdded + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f", cashOnHand);
+            logger.write(message);
+        }catch (NumberFormatException e){
+            System.out.println("Please enter the dollar amount numerically.");
         }
-        cashOnHand += roundedAmount;
-        totalItemCost += preRoundedAmount-roundedAmount;
-        String message = "FEED MONEY: $" + cashAdded + " CUSTOMER MONEY TOTAL: $" + String.format("%.2f",cashOnHand);
-        logger.write(message);
     }
 
     ///processes the bogodo settings, giving a dollar to the user, and modifying the sales report map.
